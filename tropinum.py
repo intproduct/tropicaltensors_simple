@@ -179,8 +179,8 @@ class TropicalTensor:
     def ones_like(self) -> TropicalTensor:
         return TropicalTensor(self.cfg.lib.zeros_like(self.data), self.backend)
     
-    def reshape(self) -> TropicalTensor:
-        return TropicalTensor(self.cfg.lib.reshape(self.data), self.backend)
+    def reshape(self, indexs) -> TropicalTensor:
+        return TropicalTensor(self.data.reshape(indexs), self.backend)
     
     def transpose(self, indexs) -> TropicalTensor:
         return TropicalTensor(self.cfg.transpose(self.data, indexs), self.backend)
