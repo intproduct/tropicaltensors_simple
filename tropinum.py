@@ -28,20 +28,30 @@ class TropicalNumber:
         return self.value >= other.value
     
     #运算
-    def __add__(self, other: TropicalNumber) -> TropicalNumber:
-        return TropicalNumber(max(self.value, other.value))
+    def __add__(self, other) -> TropicalNumber:
+        if isinstance(other, TropicalNumber):
+            return TropicalNumber(max(self.value, other.value))
+        else: 
+            return TropicalNumber(self.value + other)
     
-    def __radd__(self, other: TropicalNumber) -> TropicalNumber:
-        return TropicalNumber(max(self.value, other))
-    
-    def __mul__(self, other: TropicalNumber) -> TropicalNumber:
-        return TropicalNumber(self.value + other)
-    
-    def __rmul__(self, other: TropicalNumber) -> TropicalNumber:
-        return TropicalNumber(self.value + other.value)
+    def __radd__(self, other) -> TropicalNumber:
+        return self.__add__(other)
         
-    def __pow__(self, other: TropicalNumber) -> TropicalNumber:
-        return TropicalNumber(self.value * other.value)
+    
+    def __mul__(self, other) -> TropicalNumber:
+        if isinstance(other, TropicalNumber):
+            return TropicalNumber(self.value + other)
+        else:
+            return TropicalNumber(self.value * other)
+    
+    def __rmul__(self, other) -> TropicalNumber:
+        return self.__mul__(other)
+        
+    def __pow__(self, other) -> TropicalNumber:
+        if isinstance(other, TropicalNumber):
+            return TropicalNumber(self.value * other.value)
+        elif isinstance(other, int):
+            return TropicalNumber(self.balue ** other)
     
     #操作
     def __abs__(self) -> TropicalNumber:
@@ -118,35 +128,29 @@ class TropicalTensor:
             return other.data
         return self.cfg.asarray(other)
     
-    def __add__(self, other: TropicalTensor) -> TropicalTensor:
+    def __add__(self, other) -> TropicalTensor:
         if other.backend != self.backend:
             raise TypeError("Backend mismatch")
         else:
-            return self.cfg.maximum(self.data, other.data)
+            if isinstance(other, TropicalTensor):
+                return TropicalTensor(self.cfg.maximum(self.data, other.data),self.backend)
+            else: 
+                return TropicalTensor(self.data + other, self.backend)
     
-    def __radd__(self, other) -> TropicalTensor:
-        if isinstance(other, TropicalTensor):
-            return self.__add__(other)
-        elif isinstance(other, Union(float, int)):
-            other_ = TropicalTensor(other, self.backend)
-            return self.__add__(other_)
-        else:
-            raise TypeError("DataType mismatch")
+    def __radd__(self, other) -> TropicalTensor: #平移
+        return self._add__(other)
         
-    def __mul__(self, other: TropicalTensor) -> TropicalTensor:  #对与array真的有逐元素乘法这个东西
+    def __mul__(self, other) -> TropicalTensor:  #对与array真的有逐元素乘法这个东西
         if other.backend != self.backend:
             raise TypeError("Backend mismatch")
         else:
-            return self.data + other.data
+            if isinstance(other, TropicalTensor):
+                return TropicalTensor(self.data + other.data, self.backend)
+            else:
+                return TropicalTensor(self.data * other, self.backend)
         
-    def __rmul__(self, other) -> TropicalTensor:
-        if isinstance(other, TropicalTensor):
-            return self.__mul__(other)
-        elif isinstance(other, Union(float, int)):
-            other_ = TropicalTensor(other, self.backend)
-            return self.__mul__(other_)
-        else:
-            raise TypeError("DataType mismatch")
+    def __rmul__(self, other) -> TropicalTensor: #数乘
+        return self.__mul__(other)
         
     def __str__(self) -> str:
         return str(self.data)
